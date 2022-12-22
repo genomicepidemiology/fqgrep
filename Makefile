@@ -1,4 +1,4 @@
-CFLAGS ?= -Wall -O3 -Wpedantic
+CFLAGS ?= -Wall -O3
 CFLAGS += -std=c99
 LIBS = cmdline.o filebuff.o fqgrep.o qseqs.o pherror.o seqparse.o targets.o
 PROGS = fqgrep
