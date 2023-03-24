@@ -59,10 +59,10 @@ int segrep(Target *targets, unsigned invert, char **inputfilenames, int se, char
 		}
 		if(!out) {
 			filename = smalloc(strlen(outputfilename) + 5);
-			if(FASTQ & 1) {
-				sprintf(filename, "%s.fq", outputfilename);
-			} else {
+			if(FASTQ & 2) {
 				sprintf(filename, "%s.fsa", outputfilename);
+			} else {
+				sprintf(filename, "%s.fq", outputfilename);
 			}
 			out = sfopen(filename, "wb");
 			free(filename);
@@ -71,7 +71,6 @@ int segrep(Target *targets, unsigned invert, char **inputfilenames, int se, char
 		/* parse entries */
 		if(FASTQ & 1) {
 			while(FileBuffgetFq(inputfile, header, qseq, qual)) {
-				//if(0 <= target_grep(targets, (char *)(header->seq))) {
 				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)))) & 1) {
 					fprintf(out, "@%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
@@ -81,7 +80,6 @@ int segrep(Target *targets, unsigned invert, char **inputfilenames, int se, char
 			}
 		} else if(FASTQ & 2) {
 			while(FileBuffgetFsa(inputfile, header, qseq)) {
-				//if(0 <= target_grep(targets, (char *)(header->seq))) {
 				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)))) & 1) {
 					fprintf(out, ">%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
@@ -140,10 +138,10 @@ int intgrep(Target *targets, unsigned invert, char **inputfilenames, int inter, 
 		}
 		if(!out) {
 			filename = smalloc(strlen(outputfilename) + 9);
-			if(FASTQ & 1) {
-				sprintf(filename, "%s_int.fq", outputfilename);
-			} else {
+			if(FASTQ & 2) {
 				sprintf(filename, "%s_int.fsa", outputfilename);
+			} else {
+				sprintf(filename, "%s_int.fq", outputfilename);
 			}
 			out = sfopen(filename, "wb");
 			free(filename);
@@ -235,15 +233,15 @@ int pegrep(Target *targets, unsigned invert, char **inputfilenames, int pe, char
 		
 		if(!out) {
 			filename = smalloc(strlen(outputfilename) + 7);
-			if(FASTQ & 1) {
-				sprintf(filename, "%s_1.fq", outputfilename);
-				out = sfopen(filename, "wb");
-				sprintf(filename, "%s_2.fq", outputfilename);
-				out2 = sfopen(filename, "wb");
-			} else {
+			if(FASTQ & 2) {
 				sprintf(filename, "%s_1.fsa", outputfilename);
 				out = sfopen(filename, "wb");
 				sprintf(filename, "%s_2.fsa", outputfilename);
+				out2 = sfopen(filename, "wb");
+			} else {
+				sprintf(filename, "%s_1.fq", outputfilename);
+				out = sfopen(filename, "wb");
+				sprintf(filename, "%s_2.fq", outputfilename);
 				out2 = sfopen(filename, "wb");
 			}
 			free(filename);
@@ -272,7 +270,7 @@ int pegrep(Target *targets, unsigned invert, char **inputfilenames, int pe, char
 					fprintf(out2, "%s\n", qseq2->seq);
 				}
 			}
-		} else {
+		} else if(FASTQ != FASTQ2) {
 			fprintf(stderr, "%s\t%s %s\n", "# Does not match format: ", inputfilenames[i], inputfilenames[i+1]);
 			exit(1);
 		}

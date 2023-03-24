@@ -161,12 +161,15 @@ FileBuff * setFileBuff(int buffSize) {
 	FileBuff *dest;
 	
 	dest = smalloc(sizeof(FileBuff));
-	dest->file = 0;
-	dest->inBuffer = 0;
-	dest->strm = 0;
+	dest->bytes = 0;
 	dest->buffSize = buffSize;
 	dest->buffer = smalloc(buffSize);
+	dest->inBuffer = 0;
 	dest->next = dest->buffer;
+	dest->file = 0;
+	dest->strm = 0;
+	dest->z_err = 0;
+	dest->buffFileBuff = &buff_FileBuff;
 	
 	return dest;
 }
