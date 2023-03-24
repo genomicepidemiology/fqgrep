@@ -20,7 +20,7 @@
 #include "filebuff.h"
 #include "targets.h"
 
-int segrep(Target *targets, char **inputfilenames, int se, char *outputfilename);
-int intgrep(Target *targets, char **inputfilenames, int inter, char *outputfilename);
-int pegrep(Target *targets, char **inputfilenames, int pe, char *outputfilename);
-int fqgrep(char *targetfilename, char **inputfilenames, int se, char **intfilenames, int inter, char **pefilenames, int pe, char *outputfilename);
+int segrep(Target *targets, unsigned invert, char **inputfilenames, int se, char *outputfilename);
+int intgrep(Target *targets, unsigned invert, char **inputfilenames, int inter, char *outputfilename);
+int pegrep(Target *targets, unsigned invert, char **inputfilenames, int pe, char *outputfilename);
+int fqgrep(char *targetfilename, unsigned invert, char **inputfilenames, int se, char **intfilenames, int inter, char **pefilenames, int pe, char *outputfilename);

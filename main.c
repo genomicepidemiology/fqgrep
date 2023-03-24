@@ -35,7 +35,8 @@ static int helpMessage(FILE *out) {
 	fprintf(out, "#    -%c, --%-16s\t%-32s\t%s\n", 'I', "interleaved", "Input file(s) interleaved.", "");
 	fprintf(out, "#    -%c, --%-16s\t%-32s\t%s\n", 'p', "paired", "Input file(s) paired end.", "");
 	fprintf(out, "#    -%c, --%-16s\t%-32s\t%s\n", 'o', "output", "Output file(s).", "stdout");
-	fprintf(out, "#    -%c, --%-17s\t%-32s\t%s\n", 'v', "version", "Version.", "");
+	fprintf(out, "#    -%c, --%-17s\t%-32s\t%s\n", 'v', "invert-match", "Invert the sense of matching.", "");
+	fprintf(out, "#    -%c, --%-17s\t%-32s\t%s\n", 'V', "version", "Version.", "");
 	fprintf(out, "#    -%c, --%-16s\t%-32s\t%s\n", 'h', "help", "Shows this helpmessage.", "");
 	
 	return out == stderr;
@@ -45,10 +46,12 @@ int main(int argc, char *argv[]) {
 	
 	const char *stdstream = "-";
 	int args, len, offset, se, pe, inter;
+	unsigned invert;
 	char **Arg, *arg, *outputfilename, *targetfilename, opt;
 	char **inputfilenames, **intfilenames, **pefilenames;
 	
 	/* set defaults */
+	invert = 0;
 	outputfilename = (char *)(stdstream);
 	targetfilename = 0;
 	se = 0;
@@ -79,22 +82,24 @@ int main(int argc, char *argv[]) {
 				if(*arg == 0) {
 					/* terminate cmd-line */
 					++Arg;
-				} else if(len == 5 && strncmp(arg, "input", len) == 0) {
+				} else if(cmdcmp(arg, "input") == 0) {
 					inputfilenames = getArgListDie(&Arg, &args, len + offset, "input");
 					se = getArgListLen(&Arg, &args);
-				} else if(len == 11 && strncmp(arg, "interleaved", len) == 0) {
+				} else if(cmdcmp(arg, "interleaved") == 0) {
 					intfilenames = getArgListDie(&Arg, &args, len + offset, "interleaved");
 					inter = getArgListLen(&Arg, &args);
-				} else if(len == 6 && strncmp(arg, "paired", len) == 0) {
+				} else if(cmdcmp(arg, "paired") == 0) {
 					pefilenames = getArgListDie(&Arg, &args, len + offset, "paired");
 					pe = getArgListLen(&Arg, &args);
-				} else if(len == 6 && strncmp(arg, "output", len) == 0) {
+				} else if(cmdcmp(arg, "output") == 0) {
 					outputfilename = getArgDie(&Arg, &args, len + offset, "output");
-				} else if(len == 4 && strncmp(arg, "file", len) == 0) {
+				} else if(cmdcmp(arg, "file") == 0) {
 					targetfilename = getArgDie(&Arg, &args, len + offset, "file");
-				} else if(len == 7 && strncmp(arg, "version", len) == 0) {
+				} else if(cmdcmp(arg, "invert-match") == 0) {
+					invert = 1;
+				} else if(cmdcmp(arg, "version") == 0) {
 					fprintf(stdout, "fqgrep-%s\n", FQGREP_VERSION);
-				} else if(len == 4 && strncmp(arg, "help", len) == 0) {
+				} else if(cmdcmp(arg, "help") == 0) {
 					return helpMessage(stdout);
 				} else {
 					unknArg(arg - 2);
@@ -124,6 +129,8 @@ int main(int argc, char *argv[]) {
 						targetfilename = getArgDie(&Arg, &args, len, "f");
 						opt = 0;
 					} else if(opt == 'v') {
+						invert = 1;
+					} else if(opt == 'V') {
 						fprintf(stdout, "fqgrep-%s\n", FQGREP_VERSION);
 					} else if(opt == 'h') {
 						return helpMessage(stdout);
@@ -158,5 +165,5 @@ int main(int argc, char *argv[]) {
 	}
 	
 	/* fqgrep */
-	return fqgrep(targetfilename, inputfilenames, se, intfilenames, inter, pefilenames, pe, outputfilename);
+	return fqgrep(targetfilename, invert, inputfilenames, se, intfilenames, inter, pefilenames, pe, outputfilename);
 }

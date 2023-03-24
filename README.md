@@ -12,7 +12,7 @@ fqgrep greps sequences files against a file of sequence identifiers given throug
 For practical reasons you might want to add fingerseq to your path, this is usually done with:
 
 ```
-mv fingerseq ~/bin/
+mv fqgrep ~/bin/
 ```
 
 # Installation Requirements #

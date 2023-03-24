@@ -26,7 +26,7 @@
 #include "seqparse.h"
 #include "targets.h"
 
-int segrep(Target *targets, char **inputfilenames, int se, char *outputfilename) {
+int segrep(Target *targets, unsigned invert, char **inputfilenames, int se, char *outputfilename) {
 	
 	int i;
 	unsigned FASTQ;
@@ -71,7 +71,8 @@ int segrep(Target *targets, char **inputfilenames, int se, char *outputfilename)
 		/* parse entries */
 		if(FASTQ & 1) {
 			while(FileBuffgetFq(inputfile, header, qseq, qual)) {
-				if(0 <= target_grep(targets, (char *)(header->seq))) {
+				//if(0 <= target_grep(targets, (char *)(header->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)))) & 1) {
 					fprintf(out, "@%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 					fprintf(out, "+\n");
@@ -80,7 +81,8 @@ int segrep(Target *targets, char **inputfilenames, int se, char *outputfilename)
 			}
 		} else if(FASTQ & 2) {
 			while(FileBuffgetFsa(inputfile, header, qseq)) {
-				if(0 <= target_grep(targets, (char *)(header->seq))) {
+				//if(0 <= target_grep(targets, (char *)(header->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)))) & 1) {
 					fprintf(out, ">%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 				}
@@ -102,7 +104,7 @@ int segrep(Target *targets, char **inputfilenames, int se, char *outputfilename)
 	return 0;
 }
 
-int intgrep(Target *targets, char **inputfilenames, int inter, char *outputfilename) {
+int intgrep(Target *targets, unsigned invert, char **inputfilenames, int inter, char *outputfilename) {
 	
 	int i;
 	unsigned FASTQ;
@@ -150,7 +152,7 @@ int intgrep(Target *targets, char **inputfilenames, int inter, char *outputfilen
 		/* parse entries */
 		if(FASTQ & 1) {
 			while(FileBuffgetFq(inputfile, header, qseq, qual) && FileBuffgetFq(inputfile, header2, qseq2, qual2)) {
-				if(0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq)))) & 1) {
 					fprintf(out, "@%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 					fprintf(out, "+\n");
@@ -163,7 +165,7 @@ int intgrep(Target *targets, char **inputfilenames, int inter, char *outputfilen
 			}
 		} else if(FASTQ & 2) {
 			while(FileBuffgetFsa(inputfile, header, qseq) && FileBuffgetFsa(inputfile, header2, qseq2)) {
-				if(0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq)))) & 1) {
 					fprintf(out, ">%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 					fprintf(out, ">%s\n", header2->seq);
@@ -190,7 +192,7 @@ int intgrep(Target *targets, char **inputfilenames, int inter, char *outputfilen
 	return 0;
 }
 
-int pegrep(Target *targets, char **inputfilenames, int pe, char *outputfilename) {
+int pegrep(Target *targets, unsigned invert, char **inputfilenames, int pe, char *outputfilename) {
 	
 	int i;
 	unsigned FASTQ, FASTQ2;
@@ -250,7 +252,7 @@ int pegrep(Target *targets, char **inputfilenames, int pe, char *outputfilename)
 		/* parse entries */
 		if((FASTQ & 1) && (FASTQ2 & 1)) {
 			while(FileBuffgetFq(inputfile, header, qseq, qual) && FileBuffgetFq(inputfile2, header2, qseq2, qual2)) {
-				if(0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq)))) & 1) {
 					fprintf(out, "@%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 					fprintf(out, "+\n");
@@ -263,7 +265,7 @@ int pegrep(Target *targets, char **inputfilenames, int pe, char *outputfilename)
 			}
 		} else if((FASTQ & 2) && (FASTQ2 & 2)) {
 			while(FileBuffgetFsa(inputfile, header, qseq) && FileBuffgetFsa(inputfile2, header2, qseq2)) {
-				if(0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq))) {
+				if((invert ^ (0 <= target_grep(targets, (char *)(header->seq)) || 0 <= target_grep(targets, (char *)(header2->seq)))) & 1) {
 					fprintf(out, ">%s\n", header->seq);
 					fprintf(out, "%s\n", qseq->seq);
 					fprintf(out2, ">%s\n", header2->seq);
@@ -298,7 +300,7 @@ int pegrep(Target *targets, char **inputfilenames, int pe, char *outputfilename)
 	return 0;
 }
 
-int fqgrep(char *targetfilename, char **inputfilenames, int se, char **intfilenames, int inter, char **pefilenames, int pe, char *outputfilename) {
+int fqgrep(char *targetfilename, unsigned invert, char **inputfilenames, int se, char **intfilenames, int inter, char **pefilenames, int pe, char *outputfilename) {
 	
 	int error;
 	Target *targets;
@@ -307,13 +309,13 @@ int fqgrep(char *targetfilename, char **inputfilenames, int se, char **intfilena
 	targets = getTargets(targetfilename);
 	
 	/* get single end matches */
-	error = segrep(targets, inputfilenames, se, outputfilename);
+	error = segrep(targets, invert, inputfilenames, se, outputfilename);
 	
 	/* get interleaved matches */
-	error |= intgrep(targets, intfilenames, inter, outputfilename);
+	error |= intgrep(targets, invert, intfilenames, inter, outputfilename);
 	
 	/* get paired end matches */
-	error |= pegrep(targets, pefilenames, pe, outputfilename);
+	error |= pegrep(targets, invert, pefilenames, pe, outputfilename);
 	
 	return error;
 }
