@@ -1,6 +1,6 @@
 package:
   name: fqgrep
-  version: 0.8.3
+  version: 0.0.3
 
 source:
   url: https://bitbucket.org/genomicepidemiology/fqgrep/get/0.0.3.tar.gz
