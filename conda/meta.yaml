@@ -1,0 +1,27 @@
+package:
+  name: fqgrep
+  version: 0.0.3
+
+source:
+  url: https://bitbucket.org/genomicepidemiology/fqgrep/get/0.0.3.tar.gz
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - make
+    - {{ compiler('c') }}
+  host:
+    - zlib
+  run:
+    - zlib
+
+test:
+  commands:
+    - fqgrep -h | grep fqgrep >/dev/null
+
+about:
+  home: https://bitbucket.org/genomicepidemiology/fqgrep
+  summary: 'fqgrep greps sequences files against a file of sequence identifiers given through -f/--file. For practical reasons you might want to add fingerseq to your path, this is usually done with:'
+  license: Apache-2.0
